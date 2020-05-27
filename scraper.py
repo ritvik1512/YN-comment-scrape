@@ -22,7 +22,7 @@ class Scraper(object):
             raise Exception('call page() before crawl()')
 
         ignored_exceptions = (NoSuchElementException, StaleElementReferenceException, WebDriverException)
-            
+
         while True:
             try:
                 comment = self.driver.find_element_by_css_selector('div.news-comment-plugin')
@@ -36,9 +36,9 @@ class Scraper(object):
         data_keys = comment.get_attribute('data-keys')
         data_full_page_url = comment.get_attribute('data-full-page-url')
         data_comment_num = comment.get_attribute('data-comment-num')
-        page = 2
+        page = 1
 
-        while page==2: # 恣意的に12
+        while page<=20: # 恣意的に20
             print (u'--- Page %d ---' % page)
 
             try:
@@ -168,7 +168,12 @@ def get_comment(raw_url):
 
     for each in raw_url:
         driver.get(each)
-        com_class = driver.find_element_by_class_name("news-comment-plugin")
+        # URLの妥当性確認
+        try:
+            com_class = driver.find_element_by_class_name("news-comment-plugin")
+        except:
+            # print("not available!")
+            continue
         c_url = com_class.get_attribute('data-full-page-url')
         url_list.append(c_url)
     
@@ -180,6 +185,9 @@ if __name__ == '__main__':
     raw_url, news = get_page()
     url_list = get_comment(raw_url)
     data = []
+
+    for i in url_list:
+        print(i)
 
     scraper = Scraper()
 
@@ -196,6 +204,8 @@ if __name__ == '__main__':
         data_set["midashi"] = news[k][0]
         data_set["youyaku"] = news[k][1]
         data_set["kiji_id"] = k
+
+        print("starting")
 
         for i, c in enumerate(scraper.crawl()):
             c_text = (c['comment'])
