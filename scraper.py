@@ -140,7 +140,7 @@ class Scraper(object):
                 rootComments = comment.find_elements_by_css_selector('div.action article.root')
                 if len(rootComments) == 0:
                     continue
-            
+
                 rootComment = rootComments[0]
                 comment_reply = {'user': rootComment.find_elements_by_css_selector('h1.name a')[0].text,
                                  'date': rootComment.find_elements_by_css_selector('time.date')[0].text.strip(),
@@ -165,7 +165,8 @@ class Scraper(object):
                                        })
         
                 comment_reply['replies'] = henshinList
-                yield comment_reply
+                if henshinList:
+                    yield comment_reply
 
             # 「次へ」を確認
             nextLink = self.driver.find_elements_by_css_selector('ul.pagenation li.next a')
@@ -199,18 +200,21 @@ if __name__ == '__main__':
         #print (u'----- コメント %d --------------------------' % (i+1))
         data_set["comments"][c['comment']]  = []
         j_com = data_set["comments"][c['comment']]
+        
         j_com.append('agree %s  disagree %s' % (c['agree'], c['disagree']))
 
         for j, r in enumerate(c['replies']):
-            #print ('')
-            print (u'(返信 %d)' % (j+1))
-            print (r['comment'])
-            print ('Y %s  N %s' % (r['agree'], r['disagree']))
+            henshin = {}
+            henshin["h_id"] = (j+1)
+            henshin["reply"] = r['comment']
+            henshin["agree"] = r['agree']
+            henshin["disagree"] = r['disagree']
 
-        j_com.append()
+            j_com.append(henshin)
 
-        print ('\n')
-
+data.append(data_set)
+with open("data.json", "w") as write_file:
+    json.dump(data, write_file)
 
 
 
