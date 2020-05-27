@@ -7,51 +7,6 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
-
-def get_page(): # 記事へのurlを抽出
-    raw_url = []
-    with open('tweets1.json', 'r') as f:
-        res_json = json.load(f)
-
-    rlink = re.compile(r'http')
-    rbracket = re.compile(r'【|】')
-    text = []
-
-    for prop in res_json:
-        try:
-            tweet = prop["tweet"]
-            words = tweet.split()
-
-            midashi = tweet[tweet.index("【") + 1:tweet.rindex("】")]
-
-            for each in words:
-                if rlink.search(each):
-                    url.append(each)
-                elif not rbracket.search(each):
-                    youyaku = each
-
-            news = midashi, youyaku
-            text.append(news)
-        except:
-            pass
-
-    return raw_url, text
-
-def get_comment(raw_url):
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    driver = webdriver.Chrome(options=chrome_options)
-
-    url_list = [] # コメントページurl
-
-    for each in raw_url:
-        driver.get(each)
-        com_class = driver.find_element_by_class_name("news-comment-plugin")
-        c_url = com_class.get_attribute('data-full-page-url')
-        url_list.append(c_url)
-    
-    return url_list
-
 class Scraper(object):
     def __init__(self):
         self.chrome_options = Options()
@@ -61,7 +16,6 @@ class Scraper(object):
     def kiji(self, url):
         self.driver.get(url)
         self.url = url
-        #self.title = self.driver.title
 
     def crawl(self):
         if not hasattr(self, 'url'):
@@ -82,9 +36,9 @@ class Scraper(object):
         data_keys = comment.get_attribute('data-keys')
         data_full_page_url = comment.get_attribute('data-full-page-url')
         data_comment_num = comment.get_attribute('data-comment-num')
-        page = 4
+        page = 2
 
-        while page==4: # 恣意的に12
+        while page==2: # 恣意的に12
             print (u'--- Page %d ---' % page)
 
             try:
@@ -176,63 +130,90 @@ class Scraper(object):
             else:
                 break
 
+def get_page(): # 記事へのurlを抽出
+    raw_url = []
+    with open('tweets1test.json', 'r') as f:
+        res_json = json.load(f)
+
+    rlink = re.compile(r'http')
+    rbracket = re.compile(r'【|】')
+    text = []
+
+    for prop in res_json:
+        try:
+            tweet = prop["tweet"]
+            words = tweet.split()
+
+            midashi = tweet[tweet.index("【") + 1:tweet.rindex("】")]
+
+            for each in words:
+                if rlink.search(each):
+                    raw_url.append(each)
+                elif not rbracket.search(each):
+                    youyaku = each
+
+            news = midashi, youyaku
+            text.append(news)
+        except:
+            pass
+
+    return raw_url, text
+
+def get_comment(raw_url):
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    driver = webdriver.Chrome(options=chrome_options)
+
+    url_list = [] # コメントページurl
+
+    for each in raw_url:
+        driver.get(each)
+        com_class = driver.find_element_by_class_name("news-comment-plugin")
+        c_url = com_class.get_attribute('data-full-page-url')
+        url_list.append(c_url)
+    
+    return url_list
+
+
 if __name__ == '__main__':
     # 初期化
-    #url = get_page()
-    #get_comment(url)
-
-    url = 'https://headlines.yahoo.co.jp/cm/main?d=20200521-00000034-jij-pol'
-
-    scraper = Scraper()
-    scraper.kiji(url)
-
+    raw_url, news = get_page()
+    url_list = get_comment(raw_url)
     data = []
 
-    data_set = {
-        "midashi": "hello",
-        "youyaku": "world",
-        "kiji_id": 1,
-        "comments": {}
-    }
+    scraper = Scraper()
 
-    for i, c in enumerate(scraper.crawl()):
-        c_text = (c['comment'])
-        data_set["comments"][c_text]  = []
-        j_com = data_set["comments"][c_text]
-        
-        j_com.append('agree %s  disagree %s' % (c['agree'], c['disagree']))
+    for k,url in enumerate(url_list):
+        # loopの中でdefineする必要, しないと同じreference is shared
+        data_set = {
+            "midashi": "",
+            "youyaku": "",
+            "kiji_id": 0,
+            "comments": {}
+        }
 
-        for j, r in enumerate(c['replies']):
-            henshin = {}
-            henshin["h_id"] = (j+1)
-            henshin["reply"] = (r['comment'])
-            henshin["agree"] = r['agree']
-            henshin["disagree"] = r['disagree']
+        scraper.kiji(url)
+        data_set["midashi"] = news[k][0]
+        data_set["youyaku"] = news[k][1]
+        data_set["kiji_id"] = k
 
-            j_com.append(henshin)
+        for i, c in enumerate(scraper.crawl()):
+            c_text = (c['comment'])
+            data_set["comments"][c_text]  = []
+            j_com = data_set["comments"][c_text]
+            j_com.append('agree %s  disagree %s' % (c['agree'], c['disagree']))
+
+            for j, r in enumerate(c['replies']):
+                henshin = {}
+                henshin["h_id"] = (j+1)
+                henshin["reply"] = (r['comment'])
+                henshin["agree"] = r['agree']
+                henshin["disagree"] = r['disagree']
+
+                j_com.append(henshin)
+
+        data.append(data_set)
 
     # json作成
-    data.append(data_set)
     with open("data.json", "w", encoding='utf8') as write_file:
-        json.dump(data, write_file, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
-
-
-
-
-
-
-
-
-# for i, c in enumerate(scraper.crawl()):
-
-#         print (u'----- コメント %d --------------------------' % (i+1))
-#         print (c['comment'])
-#         print ('Y %s  N %s' % (c['agree'], c['disagree']))
-
-#         for j, r in enumerate(c['replies']):
-#             print ('')
-#             print (u'(返信 %d)' % (j+1))
-#             print (r['comment'])
-#             print ('Y %s  N %s' % (r['agree'], r['disagree']))
-
-#         print ('\n')
+        json.dump(data, write_file, ensure_ascii=False, sort_keys=False, indent=4, separators=(',', ': '))

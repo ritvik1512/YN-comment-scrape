@@ -27,3 +27,5 @@ for prop in res_json:
 
     except:
         pass
+
+print(kiji[0][1])
