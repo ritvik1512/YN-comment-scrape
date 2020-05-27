@@ -31,6 +31,7 @@ MANIFEST
 YN_tweets.json
 tweets1.json
 test.json
+data.json
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

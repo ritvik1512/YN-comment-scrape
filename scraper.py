@@ -82,9 +82,9 @@ class Scraper(object):
         data_keys = comment.get_attribute('data-keys')
         data_full_page_url = comment.get_attribute('data-full-page-url')
         data_comment_num = comment.get_attribute('data-comment-num')
-        page = 1
+        page = 4
 
-        while page<=12: # 恣意的に12
+        while page==4: # 恣意的に12
             print (u'--- Page %d ---' % page)
 
             try:
@@ -196,25 +196,25 @@ if __name__ == '__main__':
     }
 
     for i, c in enumerate(scraper.crawl()):
-
-        #print (u'----- コメント %d --------------------------' % (i+1))
-        data_set["comments"][c['comment']]  = []
-        j_com = data_set["comments"][c['comment']]
+        c_text = (c['comment'])
+        data_set["comments"][c_text]  = []
+        j_com = data_set["comments"][c_text]
         
         j_com.append('agree %s  disagree %s' % (c['agree'], c['disagree']))
 
         for j, r in enumerate(c['replies']):
             henshin = {}
             henshin["h_id"] = (j+1)
-            henshin["reply"] = r['comment']
+            henshin["reply"] = (r['comment'])
             henshin["agree"] = r['agree']
             henshin["disagree"] = r['disagree']
 
             j_com.append(henshin)
 
-data.append(data_set)
-with open("data.json", "w") as write_file:
-    json.dump(data, write_file)
+    # json作成
+    data.append(data_set)
+    with open("data.json", "w", encoding='utf8') as write_file:
+        json.dump(data, write_file, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ': '))
 
 
 
