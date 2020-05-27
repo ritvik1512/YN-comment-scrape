@@ -84,7 +84,7 @@ class Scraper(object):
         data_comment_num = comment.get_attribute('data-comment-num')
         page = 1
 
-        while True:
+        while page<=12: # 恣意的に12
             print (u'--- Page %d ---' % page)
 
             try:
@@ -141,14 +141,6 @@ class Scraper(object):
                 if len(rootComments) == 0:
                     continue
 
-                rootComment = rootComments[0]
-                comment_reply = {'user': rootComment.find_elements_by_css_selector('h1.name a')[0].text,
-                                 'date': rootComment.find_elements_by_css_selector('time.date')[0].text.strip(),
-                                 'comment': rootComment.find_elements_by_css_selector('p span.cmtBody')[0].text,
-                                 'agree': rootComment.find_elements_by_css_selector('a.agreeBtn.emotion_tapArea.rapid-noclick-resp span.userNum')[0].text,
-                                 'disagree' : rootComment.find_elements_by_css_selector('a.disagreeBtn.emotion_tapArea.rapid-noclick-resp span.userNum')[0].text
-                                }
-        
                 # 返信コメント 取り出し
                 henshinList = []
                 replys = comment.find_elements_by_css_selector('li[id^="reply-"]')
@@ -156,16 +148,24 @@ class Scraper(object):
                     cmtBodies = reply.find_elements_by_css_selector('div.action article p span.cmtBody')
                     if len(cmtBodies) == 0:
                         continue
-            
+
                     henshinList.append({'user': reply.find_elements_by_css_selector('h1.name a')[0].text,
                                        'date': reply.find_elements_by_css_selector('time.date')[0].text.strip(),
                                        'comment': cmtBodies[0].text,
                                        'agree': reply.find_elements_by_css_selector('a.agreeBtn.emotion_tapArea.rapid-noclick-resp span.userNum')[0].text,
                                        'disagree': reply.find_elements_by_css_selector('a.disagreeBtn.emotion_tapArea.rapid-noclick-resp span.userNum')[0].text
                                        })
+
+                if henshinList: #返信あるコメントのみ抽出
+                    rootComment = rootComments[0]
+                    comment_reply = {'user': rootComment.find_elements_by_css_selector('h1.name a')[0].text,
+                                    'date': rootComment.find_elements_by_css_selector('time.date')[0].text.strip(),
+                                    'comment': rootComment.find_elements_by_css_selector('p span.cmtBody')[0].text,
+                                    'agree': rootComment.find_elements_by_css_selector('a.agreeBtn.emotion_tapArea.rapid-noclick-resp span.userNum')[0].text,
+                                    'disagree' : rootComment.find_elements_by_css_selector('a.disagreeBtn.emotion_tapArea.rapid-noclick-resp span.userNum')[0].text
+                                    }
         
-                comment_reply['replies'] = henshinList
-                if henshinList:
+                    comment_reply['replies'] = henshinList
                     yield comment_reply
 
             # 「次へ」を確認
