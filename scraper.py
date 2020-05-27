@@ -202,7 +202,7 @@ if __name__ == '__main__':
         j_com.append('agree %s  disagree %s' % (c['agree'], c['disagree']))
 
         for j, r in enumerate(c['replies']):
-            print ('')
+            #print ('')
             print (u'(返信 %d)' % (j+1))
             print (r['comment'])
             print ('Y %s  N %s' % (r['agree'], r['disagree']))
