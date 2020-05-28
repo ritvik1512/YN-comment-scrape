@@ -7,6 +7,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
+
 class Scraper(object):
     def __init__(self):
         self.chrome_options = Options()
@@ -132,7 +133,7 @@ class Scraper(object):
 
 def get_page(): # 記事へのurlを抽出
     raw_url = []
-    with open('tweets1test.json', 'r') as f:
+    with open('tweets1test.json', 'r') as f: # file名の設定
         res_json = json.load(f)
 
     rlink = re.compile(r'http')
@@ -185,10 +186,7 @@ if __name__ == '__main__':
     raw_url, news = get_page()
     url_list = get_comment(raw_url)
     data = []
-
-    for i in url_list:
-        print(i)
-
+    
     scraper = Scraper()
 
     for k,url in enumerate(url_list):
