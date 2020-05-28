@@ -39,7 +39,7 @@ class Scraper(object):
         data_comment_num = comment.get_attribute('data-comment-num')
         page = 1
 
-        while page<=20: # 恣意的に20
+        while page<=10: # 恣意的に10
             print (u'--- Page %d ---' % page)
 
             try:
@@ -104,20 +104,36 @@ class Scraper(object):
                     if len(cmtBodies) == 0:
                         continue
 
+                    # オーサーコメントの為
+                    try:
+                        agree = reply.find_elements_by_css_selector('a.agreeBtn.emotion_tapArea.rapid-noclick-resp span.userNum')[0].text
+                        disagree = reply.find_elements_by_css_selector('a.disagreeBtn.emotion_tapArea.rapid-noclick-resp span.userNum')[0].text
+                    except:
+                        agree = '0'
+                        disagree = '0'
+
                     henshinList.append({'user': reply.find_elements_by_css_selector('h1.name a')[0].text,
                                        'date': reply.find_elements_by_css_selector('time.date')[0].text.strip(),
                                        'comment': cmtBodies[0].text,
-                                       'agree': reply.find_elements_by_css_selector('a.agreeBtn.emotion_tapArea.rapid-noclick-resp span.userNum')[0].text,
-                                       'disagree': reply.find_elements_by_css_selector('a.disagreeBtn.emotion_tapArea.rapid-noclick-resp span.userNum')[0].text
+                                       'agree': agree,
+                                       'disagree': disagree
                                        })
 
                 if henshinList: #返信あるコメントのみ抽出
                     rootComment = rootComments[0]
+                    # オーサーコメントの為
+                    try:
+                        agree_r = reply.find_elements_by_css_selector('a.agreeBtn.emotion_tapArea.rapid-noclick-resp span.userNum')[0].text
+                        disagree_r = reply.find_elements_by_css_selector('a.disagreeBtn.emotion_tapArea.rapid-noclick-resp span.userNum')[0].text
+                    except:
+                        agree_r = '0'
+                        disagree_r = '0'
+
                     comment_reply = {'user': rootComment.find_elements_by_css_selector('h1.name a')[0].text,
                                     'date': rootComment.find_elements_by_css_selector('time.date')[0].text.strip(),
                                     'comment': rootComment.find_elements_by_css_selector('p span.cmtBody')[0].text,
-                                    'agree': rootComment.find_elements_by_css_selector('a.agreeBtn.emotion_tapArea.rapid-noclick-resp span.userNum')[0].text,
-                                    'disagree' : rootComment.find_elements_by_css_selector('a.disagreeBtn.emotion_tapArea.rapid-noclick-resp span.userNum')[0].text
+                                    'agree': agree_r,
+                                    'disagree' : disagree_r
                                     }
         
                     comment_reply['replies'] = henshinList
@@ -133,7 +149,7 @@ class Scraper(object):
 
 def get_page(): # 記事へのurlを抽出
     raw_url = []
-    with open('tweets1test.json', 'r') as f: # file名の設定
+    with open('YN_tweets.json', 'r') as f: # file名の設定
         res_json = json.load(f)
 
     rlink = re.compile(r'http')
@@ -166,6 +182,8 @@ def get_comment(raw_url):
     driver = webdriver.Chrome(options=chrome_options)
 
     url_list = [] # コメントページurl
+    count = 0
+    e_url = [] # エラーURLリスト
 
     for each in raw_url:
         driver.get(each)
@@ -174,10 +192,20 @@ def get_comment(raw_url):
             com_class = driver.find_element_by_class_name("news-comment-plugin")
         except:
             # print("not available!")
+            count += 1
+            e_url.append(each)
             continue
         c_url = com_class.get_attribute('data-full-page-url')
         url_list.append(c_url)
     
+    s = str(count) + " URL not available"
+    print(count, "URL not available")
+
+    with open("error_url.txt", "w") as outf:
+        outf.writelines(e_url)
+        outf.write(s)
+    outf.close()
+
     return url_list
 
 
@@ -186,7 +214,7 @@ if __name__ == '__main__':
     raw_url, news = get_page()
     url_list = get_comment(raw_url)
     data = []
-    
+
     scraper = Scraper()
 
     for k,url in enumerate(url_list):
@@ -203,7 +231,7 @@ if __name__ == '__main__':
         data_set["youyaku"] = news[k][1]
         data_set["kiji_id"] = k
 
-        print("starting")
+        print("starting on URL no. ", k, " ", url)
 
         for i, c in enumerate(scraper.crawl()):
             c_text = (c['comment'])
