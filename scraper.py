@@ -7,6 +7,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import StaleElementReferenceException
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
+from timeout import timeout
 
 class Scraper(object):
     def __init__(self):
@@ -87,7 +88,8 @@ class Scraper(object):
             for view_link in link_hyouji:
                 while view_link.is_displayed():
                     view_link.click()
-                    time.sleep(2)
+                    print("debug time")
+                    time.sleep(1)
     
             # コメント 取り出し
             comments = self.driver.find_elements_by_css_selector('li[id^="comment-"]')
@@ -149,7 +151,7 @@ class Scraper(object):
 
 def get_page(): # 記事へのurlを抽出
     raw_url = []
-    with open('YN_tweets.json', 'r') as f: # file名の設定
+    with open('YN_tweets2.json', 'r') as f: # file名の設定
         res_json = json.load(f)
 
     rlink = re.compile(r'http')
@@ -202,7 +204,9 @@ def get_comment(raw_url):
     print(count, "URL not available")
 
     with open("error_url.txt", "w") as outf:
-        outf.writelines(e_url)
+        for i in range(len(e_url)):
+            outf.write(e_url[i])
+            outf.write("\n")
         outf.write(s)
     outf.close()
 

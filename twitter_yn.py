@@ -9,6 +9,6 @@ c.Retweets = False
 # output
 #c.Store_csv = True
 c.Store_json = True
-c.Output = "YN_tweets.json"
+c.Output = "YN_tweets1.json"
 
 twint.run.Search(c)

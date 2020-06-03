@@ -34,6 +34,7 @@ test.json
 data.json
 tweets1test.json
 bin/yahoo/
+*.json
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
