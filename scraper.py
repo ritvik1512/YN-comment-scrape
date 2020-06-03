@@ -249,7 +249,11 @@ if __name__ == '__main__':
                 j_com.append(henshin)
 
         data.append(data_set)
+        #記事ごとでjson作成
+        with open("data.json", "a", encoding='utf8') as write_file:
+            json.dump(data, write_file, ensure_ascii=False, sort_keys=False, indent=4, separators=(',', ': '))
+        data = []
 
     # json作成
-    with open("data.json", "w", encoding='utf8') as write_file:
-        json.dump(data, write_file, ensure_ascii=False, sort_keys=False, indent=4, separators=(',', ': '))
+    #with open("data.json", "w", encoding='utf8') as write_file:
+    #    json.dump(data, write_file, ensure_ascii=False, sort_keys=False, indent=4, separators=(',', ': '))
