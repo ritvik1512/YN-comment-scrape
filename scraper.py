@@ -89,7 +89,7 @@ class Scraper(object):
                 while view_link.is_displayed():
                     view_link.click()
                     print("debug time")
-                    time.sleep(2)
+                    time.sleep(1)
     
             # コメント 取り出し
             comments = self.driver.find_elements_by_css_selector('li[id^="comment-"]')
@@ -254,10 +254,10 @@ if __name__ == '__main__':
 
         data.append(data_set)
         #記事ごとでjson作成
-        # with open("data.json", "a", encoding='utf8') as write_file:
-        #     json.dump(data, write_file, ensure_ascii=False, sort_keys=False, indent=4, separators=(',', ': '))
-        # data = []
+        with open("data.json", "a", encoding='utf8') as write_file:
+            json.dump(data, write_file, ensure_ascii=False, sort_keys=False, indent=4, separators=(',', ': '))
+        data = []
 
     # json作成
-    with open("data.json", "w", encoding='utf8') as write_file:
-       json.dump(data, write_file, ensure_ascii=False, sort_keys=False, indent=4, separators=(',', ': '))
+    #with open("data.json", "w", encoding='utf8') as write_file:
+    #    json.dump(data, write_file, ensure_ascii=False, sort_keys=False, indent=4, separators=(',', ': '))
