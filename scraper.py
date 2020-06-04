@@ -88,7 +88,7 @@ class Scraper(object):
             for view_link in link_hyouji:
                 while view_link.is_displayed():
                     view_link.click()
-                    print("debug time")
+                    print("process timed out")
                     time.sleep(1)
     
             # コメント 取り出し
