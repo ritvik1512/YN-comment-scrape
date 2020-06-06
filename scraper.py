@@ -151,7 +151,7 @@ class Scraper(object):
 
 def get_page(): # 記事へのurlを抽出
     raw_url = []
-    with open('YN_tweets3.json', 'r') as f: # file名の設定
+    with open('YN_tweets_fix.json', 'r') as f: # file名の設定
         res_json = json.load(f)
 
     rlink = re.compile(r'http')
