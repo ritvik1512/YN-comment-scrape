@@ -1,6 +1,7 @@
 import json
 import re
 import time
+import sys
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
@@ -89,7 +90,7 @@ class Scraper(object):
                 while view_link.is_displayed():
                     view_link.click()
                     print("process timed out")
-                    time.sleep(1)
+                    time.sleep(3)
     
             # コメント 取り出し
             comments = self.driver.find_elements_by_css_selector('li[id^="comment-"]')
@@ -144,14 +145,15 @@ class Scraper(object):
             # 「次へ」を確認
             nextLink = self.driver.find_elements_by_css_selector('ul.pagenation li.next a')
             if len(nextLink) > 0:
-                time.sleep(1)
+                time.sleep(2)
                 page += 1
             else:
                 break
 
 def get_page(): # 記事へのurlを抽出
     raw_url = []
-    with open('YN_tweets_fix.json', 'r') as f: # file名の設定
+    inFile = sys.argv[1]
+    with open(inFile, 'r') as f: # file名の設定
         res_json = json.load(f)
 
     rlink = re.compile(r'http')
@@ -218,6 +220,7 @@ if __name__ == '__main__':
     raw_url, news = get_page()
     url_list = get_comment(raw_url)
     data = []
+    trig = sys.argv[2]  # trigger for data
 
     scraper = Scraper()
 
@@ -253,11 +256,13 @@ if __name__ == '__main__':
                 j_com.append(henshin)
 
         data.append(data_set)
+
+        if trig:
         #記事ごとでjson作成
-        with open("data.json", "a", encoding='utf8') as write_file:
-            json.dump(data, write_file, ensure_ascii=False, sort_keys=False, indent=4, separators=(',', ': '))
-        data = []
+            with open("data.json", "a", encoding='utf8') as write_file:
+                json.dump(data, write_file, ensure_ascii=False, sort_keys=False, indent=4, separators=(',', ': '))
+            data = []
 
     # json作成
-    #with open("data.json", "w", encoding='utf8') as write_file:
-    #    json.dump(data, write_file, ensure_ascii=False, sort_keys=False, indent=4, separators=(',', ': '))
+    with open("data.json", "a", encoding='utf8') as write_file:
+       json.dump(data, write_file, ensure_ascii=False, sort_keys=False, indent=4, separators=(',', ': '))
