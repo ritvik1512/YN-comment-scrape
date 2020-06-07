@@ -11,6 +11,7 @@ write_file =  open_file + ".tmp"
 with open(open_file, 'r') as istr:
     lines = istr.read().splitlines()
     last = lines[-1]
+    
     with open(write_file, 'w') as ostr:
         for line in lines:
             if fcheck:
