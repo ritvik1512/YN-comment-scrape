@@ -220,7 +220,7 @@ if __name__ == '__main__':
     raw_url, news = get_page()
     url_list = get_comment(raw_url)
     data = []
-    trig = sys.argv[2]  # trigger for data
+    trig = bool(sys.argv[2])  # trigger for data
 
     scraper = Scraper()
 
