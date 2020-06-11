@@ -10,7 +10,7 @@ time = " 00:00:00"
 
 # naming the output json
 sinl, unl = since.split("-"), until.split("-")
-name = "YN_tweets_" + str(sinl[1])+str(sinl[2]) + "_" + str(unl[1])+str(unl[2]) + ".json"
+name = "YN_tweets_" + str(sinl[1])+str(sinl[2]) + "_" + str(unl[1])+str(int(unl[2])-1) + ".json"
 
 # input
 c.Username = "YahooNewsTopics"
@@ -20,7 +20,7 @@ c.Since = str(since) + time
 c.Until = str(until) + time
 
 # output
-c.Store_csv = True
+# c.Store_csv = True
 c.Store_json = True
 
 c.Output = name
