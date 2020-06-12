@@ -1,10 +1,12 @@
 import json
 import re
 import os
+import sys
 
+inFile = sys.argv[1]
 regex = re.compile(r'\]\[')
 
-with open("data.json", "r") as f:
+with open(inFile, "r") as f:
     with open("data2.json.tmp", "w") as fw:
         for line in f:
             if regex.match(line):
